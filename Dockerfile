@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+echo 'FROM python:3.10-slim
 
 WORKDIR /app
 RUN apt-get update && apt-get install -y \
@@ -8,4 +8,4 @@ RUN apt-get update && apt-get install -y \
 COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "facefusion.py", "run", "--headless"]
+CMD ["python", "facefusion.py", "run", "--execution-providers", "cpu"]' > Dockerfile
