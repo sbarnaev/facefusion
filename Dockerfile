@@ -2,18 +2,17 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Установка системных зависимостей
+# Установка зависимостей
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем только нужные файлы (оптимизация размера образа)
-COPY requirements.txt .
-COPY facefusion.py .
+# Копируем ВЕСЬ проект
+COPY . .
 
-# Установка Python-зависимостей
+# Установка Python-пакетов
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Основная команда (для CPU)
-CMD ["python", "facefusion.py", "run", "--execution-providers", "cpu"]
+# Запуск (версия 3.x)
+CMD ["python", "-m", "facefusion", "run", "--execution-providers", "cpu"]
