@@ -1,5 +1,6 @@
-# Используем официальный образ Python
 FROM python:3.10-slim
+
+WORKDIR /app
 
 # Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
@@ -7,15 +8,22 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем только необходимое (оптимизация сборки)
+# Копируем ТОЛЬКО requirements.txt сначала (для кэширования)
 COPY requirements.txt .
-COPY facefusion.py .
 
-# Устанавливаем Python-зависимости с фиксированными версиями
-RUN pip install --no-cache-dir -r requirements.txt \
+# Устанавливаем базовые зависимости с фиксированными версиями
+RUN pip install --no-cache-dir \
     gradio==3.50.0 \
     fastapi==0.95.2 \
-    uvicorn==0.22.0
+    uvicorn==0.22.0 \
+    numpy==1.23.5 \
+    onnxruntime==1.15.1
 
-# Запускаем через uvicorn с автоматическим перезапуском при ошибках
-CMD ["uvicorn", "facefusion:app", "--host", "0.0.0.0", "--port", "8100", "--reload"]
+# Копируем остальные файлы
+COPY . .
+
+# Альтернативный запуск (если FastAPI не используется)
+CMD ["python", "facefusion.py", "run", \
+     "--execution-providers", "cpu", \
+     "--host", "0.0.0.0", \
+     "--port", "8100"]
